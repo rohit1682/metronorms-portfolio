@@ -388,7 +388,7 @@ export default function Experience() {
               {ORIGINAL.description[1]}
             </p>
             {/* Streaming links */}
-            <div style={{ marginBottom: '4px' }}>
+            <div style={{ marginBottom: '20px' }}>
               <div style={{
                 fontSize: '0.65rem',
                 letterSpacing: '0.2em',
@@ -440,6 +440,34 @@ export default function Experience() {
                   </motion.a>
                 ))}
               </div>
+            </div>
+
+            {/* Music listening hint */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+              padding: '12px 14px',
+              background: 'rgba(196,30,58,0.06)',
+              border: '1px solid rgba(196,30,58,0.18)',
+              borderRadius: '3px',
+              marginBottom: '4px',
+            }}>
+              <span style={{ fontSize: '14px', lineHeight: 1, marginTop: '1px', flexShrink: 0 }}>🎧</span>
+              <p style={{
+                margin: 0,
+                fontFamily: 'var(--font-body)',
+                fontSize: '0.74rem',
+                lineHeight: 1.65,
+                color: 'var(--white-muted)',
+                letterSpacing: '0.02em',
+              }}>
+                The song plays automatically in the background —{' '}
+                <span style={{ color: 'var(--white-dim)' }}>scroll or click anywhere</span> to wake it,
+                or hit the{' '}
+                <span style={{ color: 'var(--white-dim)' }}>▶ player button</span>{' '}
+                at the bottom right. Prefer a dedicated player? Stream via the links above.
+              </p>
             </div>
           </div>
 

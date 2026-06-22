@@ -213,7 +213,7 @@ function MobileStoryHero() {
         style={{
           position: 'absolute', inset: 0,
           width: '100%', height: '100%',
-          objectFit: 'cover', objectPosition: 'center 40%',
+          objectFit: 'cover', objectPosition: 'center 65%',
           filter: 'brightness(0.38) saturate(0.7)',
           willChange: 'auto',
         }}
@@ -291,7 +291,7 @@ function DesktopStoryHero() {
           className="story-hero-img"
           style={{
             width: '100%', height: '100%',
-            objectFit: 'cover', objectPosition: 'center 40%',
+            objectFit: 'cover', objectPosition: 'center 65%',
             filter: 'blur(3px) brightness(0.4) saturate(0.7)',
           }}
         />
