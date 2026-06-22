@@ -1,90 +1,99 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
 
 import Sidebar from './components/Sidebar';
 import LogoSplash from './components/LogoSplash';
 import AudioPlayer from './components/AudioPlayer';
+
+// Sections
 import Hero from './components/sections/Hero';
 import About from './components/sections/About';
+import MemberStrip from './components/sections/MemberStrip';
 import Experience from './components/sections/Experience';
-import Members from './components/sections/Members';
-import Gallery from './components/sections/Gallery';
 import Contact from './components/sections/Contact';
 
-// Section IDs must match the `id` attributes on each section element
-const SECTION_IDS = ['home', 'about', 'experience', 'members', 'gallery', 'contact'];
+// Pages
+import StoryPage from './pages/StoryPage';
+import MembersPage from './pages/MembersPage';
+import HighlightsPage from './pages/HighlightsPage';
 
-export default function App() {
+// Page transition wrapper
+function PageWrapper({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.4, ease: 'easeInOut' }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Home = all sections scrolled together
+function HomePage() {
+  return (
+    <PageWrapper>
+      <Hero />
+      <About />
+      <MemberStrip />
+      <Experience />
+      <Contact />
+    </PageWrapper>
+  );
+}
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/story" element={<PageWrapper><StoryPage /></PageWrapper>} />
+        <Route path="/members" element={<PageWrapper><MembersPage /></PageWrapper>} />
+        <Route path="/highlights" element={<PageWrapper><HighlightsPage /></PageWrapper>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+function AppShell() {
   const [splashDone, setSplashDone] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-
-    SECTION_IDS.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setActiveSection(id);
-            }
-          });
-        },
-        {
-          threshold: 0.3,
-          rootMargin: '-10% 0px -10% 0px',
-        }
-      );
-
-      observer.observe(el);
-      observers.push(observer);
-    });
-
-    return () => observers.forEach((o) => o.disconnect());
-  }, []);
 
   return (
     <>
-      {/* Netflix-style logo splash */}
       <AnimatePresence>
-        {!splashDone && (
-          <LogoSplash onComplete={() => setSplashDone(true)} />
-        )}
+        {!splashDone && <LogoSplash onComplete={() => setSplashDone(true)} />}
       </AnimatePresence>
 
-      {/* Audio player — mounts after splash so autoplay has a better chance */}
       {splashDone && <AudioPlayer />}
 
-      {/* Main site — fades in after splash */}
       <motion.div
         className="app"
         initial={{ opacity: 0 }}
         animate={{ opacity: splashDone ? 1 : 0 }}
         transition={{ duration: 0.6, ease: 'easeInOut' }}
       >
-        <Sidebar
-          activeSection={activeSection}
-          onToggle={setSidebarOpen}
-          isOpen={sidebarOpen}
-        />
-
+        <Sidebar onToggle={setSidebarOpen} />
         <main
           className={`main-content${sidebarOpen ? ' sidebar-open' : ''}`}
           style={{ width: '100%' }}
         >
-          <Hero />
-          <About />
-          <Experience />
-          <Members />
-          <Gallery />
-          <Contact />
+          <AnimatedRoutes />
         </main>
       </motion.div>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
 }

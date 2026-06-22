@@ -9,10 +9,11 @@ export default function AudioPlayer() {
   const [isMuted, setIsMuted] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const autoplayPendingRef = useRef(false);
+  const startedRef = useRef(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-  // Attempt autoplay on mount. If the browser blocks it, register a one-time
-  // listener so music starts automatically on the very first user interaction.
+  // Always register interaction listeners immediately — whether autoplay succeeds or not.
+  // This guarantees the music fires on the very first scroll/click/touch/keypress.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -20,41 +21,35 @@ export default function AudioPlayer() {
     audio.volume = 0.35;
     audio.loop = true;
 
-    const startAudio = async () => {
-      try {
-        await audio.play();
-        setIsPlaying(true);
-        setHasInteracted(true);
-        autoplayPendingRef.current = false;
-        // Remove the interaction listener once playing
-        document.removeEventListener('click', startAudio);
-        document.removeEventListener('touchstart', startAudio);
-        document.removeEventListener('keydown', startAudio);
-        document.removeEventListener('scroll', startAudio);
-        window.removeEventListener('wheel', startAudio);
-      } catch {
-        // Still blocked — will retry on next interaction
-      }
+    const startAudio = () => {
+      if (startedRef.current) return;
+      audio.play()
+        .then(() => {
+          startedRef.current = true;
+          setIsPlaying(true);
+          setHasInteracted(true);
+        })
+        .catch(() => {
+          // Still blocked — next interaction will retry
+        });
     };
 
-    const tryAutoplay = async () => {
-      try {
-        await audio.play();
+    // Register on ALL common interactions unconditionally
+    document.addEventListener('click', startAudio);
+    document.addEventListener('touchstart', startAudio, { passive: true });
+    document.addEventListener('keydown', startAudio);
+    document.addEventListener('scroll', startAudio, { passive: true });
+    window.addEventListener('wheel', startAudio, { passive: true });
+    window.addEventListener('touchmove', startAudio, { passive: true });
+
+    // Also try immediate autoplay (works in some contexts)
+    audio.play()
+      .then(() => {
+        startedRef.current = true;
         setIsPlaying(true);
         setHasInteracted(true);
-      } catch {
-        // Autoplay blocked by browser policy.
-        // Register a one-time listener: play as soon as the user touches anything.
-        autoplayPendingRef.current = true;
-        document.addEventListener('click', startAudio, { once: false });
-        document.addEventListener('touchstart', startAudio, { once: false });
-        document.addEventListener('keydown', startAudio, { once: false });
-        document.addEventListener('scroll', startAudio, { once: false, passive: true });
-        window.addEventListener('wheel', startAudio, { once: false, passive: true });
-      }
-    };
-
-    tryAutoplay();
+      })
+      .catch(() => { /* blocked — listeners above will handle it */ });
 
     return () => {
       document.removeEventListener('click', startAudio);
@@ -62,6 +57,7 @@ export default function AudioPlayer() {
       document.removeEventListener('keydown', startAudio);
       document.removeEventListener('scroll', startAudio);
       window.removeEventListener('wheel', startAudio);
+      window.removeEventListener('touchmove', startAudio);
     };
   }, []);
 

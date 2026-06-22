@@ -145,6 +145,39 @@ export const CLOSING = {
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
+// BAND STORY — Cinematic journey narrative (used on /story page)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const STORY = {
+  heading: "Our Story",
+  subheading: "Every band has a beginning.",
+  // Featured member on the story page — change name to any MEMBERS.list name
+  featuredMember: "SHESHTHO",
+  paragraphs: [
+    "Every band has a beginning. Ours started in classrooms, corridors, and casual jam sessions between lectures.",
+    "What began as a group of friends sharing a passion for music soon evolved into something much larger. Armed with loud amplifiers, endless curiosity, and a desire to create something unique, six musicians from Kolkata came together to form Metronorms—an experimental rock band built on the belief that music should never be confined by boundaries.",
+    "From the very beginning, we were drawn to exploration. Instead of following familiar formulas, we embraced the unknown, blending progressive rock, alternative influences, psychedelia, ambient textures, and Indian musical elements into a sound that felt distinctly our own. Our songs became reflections of modern life—chaotic yet beautiful, intense yet introspective, disciplined yet unpredictable.",
+    "As our sound evolved, so did our ambitions.",
+    "The college festival circuit became our proving ground. Stage after stage, competition after competition, Metronorms earned recognition for delivering performances that were as technically precise as they were emotionally charged. Over the years, we consistently secured top-three finishes across numerous inter-college festivals and district-level competitions, gradually establishing ourselves as one of the emerging forces in Kolkata's live music scene.",
+    "But trophies were never the destination.",
+    "For us, every rehearsal was about building chemistry. Every performance was about creating a connection. We learned that the true reward of music lies in the moments when a crowd becomes part of the experience—when the energy flowing from the stage is returned tenfold by the audience.",
+    "Over the past two years, that philosophy has carried us across some of Kolkata's most vibrant stages. Metronorms has performed at prestigious institutions including Meghnad Saha Institute of Technology, Institute of Post Graduate Medical Education & Research and SSKM Hospital, Asutosh College, Future Institute of Engineering and Management, Techno India University, and Amity University. Alongside these performances, we have expanded beyond the college circuit through private events, independent showcases, and competitive platforms.",
+    "One of the defining highlights of our journey came when we secured the position of 2nd Runner-Up at \"Poila Parbon,\" competing among the Top 20 bands in Kolkata. The achievement reinforced what we had always believed—that dedication, originality, and relentless hard work could transform a group of friends into a serious musical force.",
+    "As our confidence on stage grew, so did our desire to create something that would outlive a single performance.",
+    "That desire led to a defining milestone in our journey: the release of our debut original composition, \"Saddho Nei Amar.\"",
+    "More than just a song, it represents a bridge between our roots as a live-performing band and our evolution as recording artists. The track captures everything that defines Metronorms—intricate rhythms, immersive soundscapes, raw emotion, and an unwavering commitment to experimentation. It is the culmination of countless hours spent writing, rehearsing, refining, and discovering our collective voice.",
+    "\"Saddho Nei Amar\" is an invitation into our world—a world where haunting melodies coexist with explosive breakdowns, where tradition meets innovation, and where every note serves a purpose. The song is now available across all major streaming platforms, marking our boldest step yet in sharing our music with a wider audience.",
+    "Today, Metronorms stands as more than just a band.",
+    "We are six musicians united by friendship, creativity, and a shared vision of pushing musical boundaries. Whether performing at a packed college festival, an intimate private gathering, or a large-scale public event, we bring the same commitment to excellence, professionalism, and unforgettable live energy.",
+    "Our journey is still unfolding, and the next chapter is waiting to be written.",
+    "Until then, we'll keep doing what we've always done—turning every stage into a second home and every performance into an experience worth remembering.",
+  ],
+  closing: "Metronorms",
+  closingTagline: "Experimental Rock Band | Kolkata, India",
+  bookingNote: "Currently active and available for live performances, collaborations, festivals, corporate events, and private bookings.",
+} as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // NAVIGATION — Section labels matching PDF structure
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -155,4 +188,12 @@ export const NAV_SECTIONS = [
   { id: "members", label: "Our Faces" },
   { id: "highlights", label: "Our Highlights" },
   { id: "contact", label: "Our Contact" },
+] as const;
+
+// Navigation routes for the multi-page app (Experience & Contact live on Home)
+export const NAV_ROUTES = [
+  { path: "/", label: "Home", id: "home" },
+  { path: "/story", label: "Our Story", id: "story" },
+  { path: "/members", label: "Our Faces", id: "members" },
+  { path: "/highlights", label: "Highlights", id: "highlights" },
 ] as const;

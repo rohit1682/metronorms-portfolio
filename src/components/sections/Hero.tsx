@@ -42,11 +42,19 @@ export default function Hero() {
         />
       )}
 
+      {/* Uniform dark base layer */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'rgba(10,10,10,0.35)',
+        zIndex: 1,
+      }} />
+
       {/* Dark gradient overlay */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        background: 'linear-gradient(180deg, rgba(10,10,10,0.65) 0%, rgba(10,10,10,0.4) 40%, rgba(10,10,10,0.85) 80%, #0a0a0a 100%)',
+        background: 'linear-gradient(180deg, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.70) 40%, rgba(10,10,10,0.92) 80%, #0a0a0a 100%)',
         zIndex: 1,
       }} />
 

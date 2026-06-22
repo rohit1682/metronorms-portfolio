@@ -50,11 +50,16 @@ export const CONTACT_UI = {
   subheading: "Ready to bring Metronorms to your stage? Reach out and let's make it happen.",
 } as const;
 
-export const SIDEBAR_ICONS: Record<string, string> = {
-  home: '◈',
-  about: '◉',
-  experience: '◎',
-  members: '◈',
-  gallery: '◆',
-  contact: '◇',
+// Sidebar icon IDs — these match react-icons names used in Sidebar.tsx
+// Route path → icon key
+export const SIDEBAR_ICON_KEYS: Record<string, string> = {
+  home: 'home',
+  story: 'story',
+  members: 'members',
+  highlights: 'highlights',
+  experience: 'experience',
+  contact: 'contact',
 };
+
+// Keep for backward compat
+export const SIDEBAR_ICONS: Record<string, string> = SIDEBAR_ICON_KEYS;
