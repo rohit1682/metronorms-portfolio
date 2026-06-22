@@ -42,6 +42,7 @@ export default function Sidebar({ onToggle }: SidebarProps) {
 
   // Close mobile drawer on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isMobile) toggleOpen(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname, isMobile]);

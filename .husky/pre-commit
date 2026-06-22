@@ -1,0 +1,11 @@
+#!/bin/sh
+# Pre-commit quality gate — all three must pass before a commit is allowed
+
+echo "🔍 Running lint..."
+npm run lint
+
+echo "🧪 Running tests with 100% coverage..."
+npm run test:coverage
+
+echo "🏗️  Building project..."
+npm run build

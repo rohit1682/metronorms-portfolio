@@ -183,24 +183,14 @@ function CascadeIntro({
 function MemberRow({
   member,
   index,
-  usedPhotos,
-  onPhotoUsed,
 }: {
   member: { name: string; displayName: string; bio: string };
   index: number;
-  usedPhotos: Set<string>;
-  onPhotoUsed: (url: string) => void;
 }) {
-  const allPhotos = MEMBER_PHOTOS[member.name] ?? [];
-  const photos    = useMemo(() => shuffled(allPhotos), [allPhotos]);
+  const photos = useMemo(() => shuffled(MEMBER_PHOTOS[member.name] ?? []), [member.name]);
 
-  const [activePhoto, setActivePhoto] = useState(() => {
-    const idx = photos.findIndex(p => !usedPhotos.has(p));
-    const chosen = idx === -1 ? 0 : idx;
-    const url = photos[chosen];
-    if (url) onPhotoUsed(url);
-    return chosen;
-  });
+  // Each member has their own photo pool so duplicates across rows are not possible
+  const [activePhoto, setActivePhoto] = useState(0);
 
   const [hovered, setHovered] = useState(false);
   const { ref, inView } = useInView({
@@ -213,8 +203,6 @@ function MemberRow({
   const role       = MEMBERS_UI.roles[member.name] ?? MEMBERS_UI.fallbackRole;
 
   const handleThumbClick = (i: number) => {
-    const url = photos[i];
-    if (url) onPhotoUsed(url);
     setActivePhoto(i);
   };
 
@@ -400,9 +388,6 @@ export default function MembersPage() {
   const [introDone, setIntroDone] = useState(false);
   const { ref: headRef, inView: headInView } = useInView({ threshold: 0.2, triggerOnce: true });
 
-  const usedPhotoSet = useMemo(() => new Set<string>(), []);
-  const onPhotoUsed  = useCallback((url: string) => { usedPhotoSet.add(url); }, [usedPhotoSet]);
-
   // Collect 2-3 photos per member, shuffle the pool, take up to 18
   const cascadePhotos = useMemo(() => {
     const pool: string[] = [];
@@ -481,8 +466,6 @@ export default function MembersPage() {
                 key={member.name}
                 member={member}
                 index={i}
-                usedPhotos={usedPhotoSet}
-                onPhotoUsed={onPhotoUsed}
               />
             ))}
           </div>

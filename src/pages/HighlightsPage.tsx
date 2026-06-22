@@ -203,7 +203,7 @@ function Explosion() {
         tx: Math.cos(rad) * dist,
         ty: Math.sin(rad) * dist,
         size: rnd(4, 14),
-        color: PART_COLORS[Math.floor(Math.random() * PART_COLORS.length)],
+        color: PART_COLORS[Math.floor(rnd(0, PART_COLORS.length))],
         delay: rnd(0, 0.06),
       };
     }), []
@@ -279,7 +279,7 @@ export default function HighlightsPage() {
     const maxPx = isMobile ? 120 : isTablet ? 165 : 215;
     const count = isMobile ? 10  : isTablet ? 12  : 14;
     return [...ALL_PHOTOS]
-      .sort(() => Math.random() - 0.5)
+      .sort(() => rnd(-1, 1))
       .slice(0, count)
       .map((p, i) => {
         const size = Math.round(rnd(minPx, maxPx));
@@ -302,7 +302,8 @@ export default function HighlightsPage() {
       timers.current.push(t1);
     }, WARMUP_MS);
     timers.current.push(warm);
-    return () => timers.current.forEach(clearTimeout);
+    const currentTimers = timers.current;
+    return () => currentTimers.forEach(clearTimeout);
   }, [thumbs]);
 
   const skip = () => { timers.current.forEach(clearTimeout); setPhase('gallery'); };
@@ -426,7 +427,7 @@ export default function HighlightsPage() {
             <NeutronStar phase={phase} />
             {phase === 'exploding' && <Explosion />}
 
-            {/* Skip */}
+            {/* Skip — bottom-left so it never overlaps the audio player (bottom-right) */}
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
@@ -434,7 +435,7 @@ export default function HighlightsPage() {
               transition={{ delay: 0.5 }}
               onClick={skip}
               style={{
-                position: 'absolute', bottom: 24, right: 20,
+                position: 'absolute', bottom: 24, left: 20,
                 padding: '7px 18px',
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.2)',

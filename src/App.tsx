@@ -8,6 +8,7 @@ import LogoSplash from './components/layout/LogoSplash';
 import AudioPlayer from './components/layout/AudioPlayer';
 import ScrollProgressBar from './components/ui/ScrollProgressBar';
 import BookingCTA from './components/ui/BookingCTA';
+import ScrollToTop from './components/ui/ScrollToTop';
 
 // Sections
 import Hero from './components/sections/Hero';
@@ -75,6 +76,7 @@ function AppShell() {
       {splashDone && <AudioPlayer />}
       {splashDone && <ScrollProgressBar />}
       {splashDone && <BookingCTA />}
+      {splashDone && <ScrollToTop />}
 
       <motion.div
         className="app"

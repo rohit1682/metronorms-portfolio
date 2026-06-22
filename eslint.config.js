@@ -6,7 +6,8 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // Generated / third-party artefacts — never lint
+  globalIgnores(['dist', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -17,6 +18,17 @@ export default defineConfig([
     ],
     languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    // Relax a few rules inside test / setup files only
+    files: ['**/*.test.{ts,tsx}', 'src/test/**'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern:   '^_',
+        varsIgnorePattern:   '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
     },
   },
 ])
