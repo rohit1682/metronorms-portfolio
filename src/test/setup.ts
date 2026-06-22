@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // ── matchMedia ────────────────────────────────────────────────────────────────
 // jsdom doesn't implement matchMedia; provide a working stub.
