@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ALL_PHOTOS, GALLERY_CATEGORIES } from '../../constants/images';
@@ -162,53 +162,111 @@ function PhotoCard({
   index: number;
   onClick: () => void;
 }) {
-  const [loaded, setLoaded] = useState(false);
-  const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
+  const [loaded,  setLoaded]  = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  // Entrance trigger — fires once when any part enters the viewport
+  const { ref: entranceRef, inView: entered } = useInView({
+    threshold: 0.05,
+    triggerOnce: true,
+  });
+
+  // Fully-visible trigger — updates continuously as user scrolls
+  const { ref: fullRef, inView: fullyVisible } = useInView({
+    threshold: 0.75,
+    triggerOnce: false,
+  });
+
+  // Merge both refs onto the same element
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const setRefs = (el: HTMLDivElement | null) => {
+    containerRef.current = el;
+    (entranceRef as (el: HTMLDivElement | null) => void)(el);
+    (fullRef     as (el: HTMLDivElement | null) => void)(el);
+  };
+
+  // Image filter: blurred while loading OR while not fully in view
+  const imgFilter = !loaded
+    ? 'blur(14px) brightness(0.7)'
+    : !fullyVisible
+      ? 'blur(6px) brightness(0.6)'
+      : 'blur(0px) brightness(1)';
+
+  const imgScale = fullyVisible ? (hovered ? 1.07 : 1.0) : 0.96;
 
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      ref={setRefs}
+      initial={{ opacity: 0, y: 24 }}
+      animate={entered ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: (index % 12) * 0.04 }}
       onClick={onClick}
-      whileHover={{ scale: 1.02 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        position: 'relative',
+        position:    'relative',
         borderRadius: '4px',
-        overflow: 'hidden',
-        cursor: 'pointer',
-        border: '1px solid rgba(255,255,255,0.05)',
-        background: '#111',
+        overflow:    'hidden',
+        cursor:      'pointer',
+        border:      `1px solid ${hovered ? 'rgba(196,30,58,0.45)' : 'rgba(255,255,255,0.05)'}`,
+        background:  '#111',
         breakInside: 'avoid',
         marginBottom: '12px',
+        transition:  'border-color 0.3s ease, box-shadow 0.3s ease',
+        boxShadow:   hovered
+          ? '0 8px 32px rgba(139,0,0,0.35), 0 0 0 1px rgba(196,30,58,0.15)'
+          : '0 2px 8px rgba(0,0,0,0.4)',
       }}
     >
-      {/* Blur-to-sharp lazy load */}
       <img
         src={src}
         alt={`Gallery ${index + 1}`}
         onLoad={() => setLoaded(true)}
         style={{
-          width: '100%',
-          display: 'block',
-          filter: loaded ? 'none' : 'blur(12px)',
-          transition: 'filter 0.4s ease, transform 0.4s ease',
-          objectFit: 'cover',
+          width:      '100%',
+          display:    'block',
+          objectFit:  'cover',
+          filter:     imgFilter,
+          transform:  `scale(${imgScale})`,
+          transition: 'filter 0.45s ease, transform 0.45s ease',
+          transformOrigin: 'center center',
         }}
         loading="lazy"
       />
 
-      {/* Hover overlay */}
+      {/* Crimson hover overlay */}
       <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'linear-gradient(135deg, rgba(139,0,0,0.3), transparent)',
-        opacity: 0,
+        position:   'absolute',
+        inset:      0,
+        background: 'linear-gradient(160deg, rgba(139,0,0,0.32) 0%, transparent 60%)',
+        opacity:    hovered ? 1 : 0,
         transition: 'opacity 0.3s ease',
-      }}
-        className="gallery-hover-overlay"
-      />
+        pointerEvents: 'none',
+      }} />
+
+      {/* Expand hint icon */}
+      <div style={{
+        position:   'absolute',
+        top:        '50%',
+        left:       '50%',
+        transform:  `translate(-50%, -50%) scale(${hovered ? 1 : 0.5})`,
+        opacity:    hovered ? 1 : 0,
+        transition: 'opacity 0.3s ease, transform 0.3s ease',
+        width:      '40px',
+        height:     '40px',
+        borderRadius: '50%',
+        background:  'rgba(0,0,0,0.65)',
+        border:      '1px solid rgba(196,30,58,0.6)',
+        display:    'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color:      '#fff',
+        fontSize:   '16px',
+        pointerEvents: 'none',
+        backdropFilter: 'blur(4px)',
+      }}>
+        ⤢
+      </div>
     </motion.div>
   );
 }

@@ -473,21 +473,17 @@ export default function Experience() {
             <div style={{
               borderRadius: '4px',
               overflow: 'hidden',
-              aspectRatio: '4/3',
               border: '1px solid rgba(139,0,0,0.3)',
-              background: '#0a0a0a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
             }}>
               <img
                 src={photo}
                 alt="Metronorms performing"
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  filter: 'brightness(0.85) contrast(1.05) saturate(0.9)',
+                  width:      '100%',
+                  height:     'auto',
+                  display:    'block',
+                  objectFit:  'cover',
+                  filter:     'brightness(0.88) contrast(1.05) saturate(0.92)',
                 }}
                 loading="lazy"
               />
