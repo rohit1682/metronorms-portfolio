@@ -41,6 +41,12 @@ const anishRaw = import.meta.glob<{ default: string }>(
   { eager: true }
 );
 
+// OC folder — cover art / promo shot used on the Saddho Nei Amar card
+const ocRaw = import.meta.glob<{ default: string }>(
+  '../assets/OC/*.{jpg,jpeg,png,webp}',
+  { eager: true }
+);
+
 const toUrls = (raw: Record<string, { default: string }>): string[] =>
   Object.values(raw).map((m) => m.default);
 
@@ -92,13 +98,16 @@ export const ALL_PHOTOS: { src: string; category: string }[] = [
 ];
 
 // Hero background — 3rd group photo (index 2)
-export const HERO_BG: string = GROUP_PHOTOS[8] ?? GROUP_PHOTOS[0] ?? '';
+export const HERO_BG: string = GROUP_PHOTOS[9] ?? GROUP_PHOTOS[0] ?? '';
 
 // About section photo — second group photo (or fallback to first)
 export const ABOUT_PHOTO: string = GROUP_PHOTOS[1] ?? GROUP_PHOTOS[0] ?? '';
 
 // Experience section photo — third group photo
 export const EXPERIENCE_PHOTO: string = GROUP_PHOTOS[2] ?? GROUP_PHOTOS[0] ?? '';
+
+// Cover art / promo image for the Saddho Nei Amar feature card
+export const ORIGINAL_PHOTO: string = toUrls(ocRaw)[0] ?? '';
 
 // Gallery filter categories (matches ALL_PHOTOS category values)
 export const GALLERY_CATEGORIES: string[] = [

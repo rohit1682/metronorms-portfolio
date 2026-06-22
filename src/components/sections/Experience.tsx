@@ -1,10 +1,8 @@
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { EXPERIENCE, ORIGINAL } from '../../constants';
 import { EXPERIENCE_UI } from '../../constants/ui';
-import { GROUP_PHOTOS } from '../../constants/images';
-import { randomItem } from '../../utils/random';
+import { ORIGINAL_PHOTO } from '../../constants/images';
 
 function TimelineCard({
   content,
@@ -138,7 +136,7 @@ export default function Experience() {
   const { ref: originalRef, inView: originalInView } = useInView({ threshold: 0.2, triggerOnce: true });
 
   // Random group photo on every mount — so the card looks fresh on each visit
-  const photo = useMemo(() => randomItem(GROUP_PHOTOS) ?? GROUP_PHOTOS[0] ?? '', []);
+  const photo = ORIGINAL_PHOTO;
 
   return (
     <section

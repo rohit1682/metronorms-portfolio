@@ -101,13 +101,41 @@ export const ORIGINAL = {
 export const MEMBERS = {
   heading: "OUR FACES",
   list: [
-    { name: "SHESHTHO" },
-    { name: "JOYORSHI" },
-    { name: "KOUSTAV" },
-    { name: "MANODEEP" },
-    { name: "ARKADEEP" },
-    { name: "ANIKET" },
-    { name: "ANISH" },
+    {
+      name: "SHESHTHO",
+      displayName: "Shrestho Chakraborty",
+      bio: "I am Shrestho Chakraborty, the voice behind Metronorms. My journey with music is driven by raw emotion, unapologetic energy, and a relentless passion for rock. Through every lyric and every performance, I aim to create an honest, high-voltage experience that resonates beyond the stage.",
+    },
+    {
+      name: "JOYORSHI",
+      displayName: "Joyorshi De",
+      bio: "I am the guitarist of Metronorms, bringing energy, creativity, and emotion to the band's sound. Passionate about crafting memorable melodies and powerful riffs, I strive to blend technical skill with musical expression in every performance. Live shows are where I feel most alive — connecting with audiences and contributing to our unique musical journey.",
+    },
+    {
+      name: "KOUSTAV",
+      displayName: "Koustav Adhikari",
+      bio: "I'm Koustav Adhikari — a passionate drummer who lives for powerful beats, high energy, and pure rock vibes. From driving rhythms to explosive stage moments, I bring groove and intensity to every performance and session. Music isn't just what I do — it's who I am.",
+    },
+    {
+      name: "MANODEEP",
+      displayName: "Manodeep Bose",
+      bio: "I'm Manodeep, holding down both vocals and guitar for Metronorms. There's something powerful about channeling a song through both your voice and your instrument simultaneously. We have massive things coming your way — stay tuned.",
+    },
+    {
+      name: "ARKADEEP",
+      displayName: "Arkadeep Chakraborty",
+      bio: "I'm Arkadeep, Lead Guitarist for Metronorms. We are laser-focused on the creative process and channeling high energy into our upcoming projects. Every riff is built with intention — stay tuned for our next wave of releases. Rock on.",
+    },
+    {
+      name: "ANIKET",
+      displayName: "Aniket Dutta",
+      bio: "Aniket here from Metronorms. The bass is the foundation everything else is built on — the pulse that ties rhythm and melody together. We've been steadily building as a band and pushing our vision forward. Excited for what's ahead.",
+    },
+    {
+      name: "ANISH",
+      displayName: "Anish Murmu",
+      bio: "Hi, I'm Anish, and I've been playing drums with the band for about eight months. For me it's all about bringing rhythm, dynamics, and creativity to our sound. I'm always eager to learn and improve, and I'm incredibly grateful to be making music with a group that shares the same passion.",
+    },
   ],
 } as const;
 

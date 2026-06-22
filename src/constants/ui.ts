@@ -26,13 +26,13 @@ export const MEMBERS_UI = {
   swipeHint: 'Swipe to explore',
   // Member roles — key must match MEMBERS.list[].name exactly
   roles: {
-    SHESHTHO: 'Lead Guitar & Vocals',
-    JOYORSHI: 'Rhythm Guitar',
-    KOUSTAV: 'Guitar',
-    MANODEEP: 'Bass & Booking',
-    ARKADEEP: 'Drums',
-    ANIKET: 'Keyboards',
-    ANISH: 'Vocals',
+    SHESHTHO: 'Vocalist',
+    JOYORSHI: 'Guitarist',
+    KOUSTAV:  'Drummer',
+    MANODEEP: 'Vocals & Guitar',
+    ARKADEEP: 'Lead Guitarist',
+    ANIKET:   'Bassist',
+    ANISH:    'Drummer',
   } as Record<string, string>,
   fallbackRole: 'Band Member',
 } as const;

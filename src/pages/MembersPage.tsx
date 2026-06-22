@@ -6,7 +6,13 @@ import { MEMBER_PHOTOS } from '../constants/images';
 import { MEMBERS_UI } from '../constants/ui';
 import { randomIndex } from '../utils/random';
 
-function MemberCard({ member, index }: { member: { name: string }; index: number }) {
+function MemberCard({
+  member,
+  index,
+}: {
+  member: { name: string; displayName: string; bio: string };
+  index: number;
+}) {
   const photos = MEMBER_PHOTOS[member.name] ?? [];
   // Start on a random photo on every mount so each visit shows a different face
   const [activePhoto, setActivePhoto] = useState(() => randomIndex(photos.length));
@@ -135,6 +141,22 @@ function MemberCard({ member, index }: { member: { name: string }; index: number
             </motion.button>
           ))}
         </div>
+      )}
+
+      {/* Bio */}
+      {member.bio && (
+        <p style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 'clamp(0.78rem, 1.5vw, 0.88rem)',
+          lineHeight: 1.75,
+          color: 'var(--white-dim)',
+          fontStyle: 'italic',
+          borderLeft: '2px solid rgba(196,30,58,0.45)',
+          paddingLeft: '12px',
+          margin: 0,
+        }}>
+          {member.bio}
+        </p>
       )}
     </motion.div>
   );
