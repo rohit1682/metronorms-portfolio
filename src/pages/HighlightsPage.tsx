@@ -28,17 +28,16 @@ interface PartDef {
 }
 
 // ── tunables ──────────────────────────────────────────────────────────────────
-const PULL_MS    = 2400;  // total pulling phase duration
+const PULL_MS    = 3200;  // longer so big photos are visible across their journey
 const EXP_MS     = 700;
-const N_PARTS    = 16;
-const N_THUMBS   = 12;   // keep low — each thumbnail = a GPU compositing layer
-const WARMUP_MS  = 350;  // let browser paint the stage before animations begin
-// Each thumb animation must finish WITHIN the pull phase:
-//   max_delay (0.5s) + ani_duration (1.5s) = 2.0s < PULL_MS (2.4s) ✓
-const THUMB_ANI_DUR = 1.5;  // seconds
-const THUMB_MAX_DELAY = 0.5; // seconds
-const THUMB_MIN_PX = 56;
-const THUMB_MAX_PX = 90;
+const N_PARTS    = 20;
+const N_THUMBS   = 14;   // more photos to fill the wider stage
+const WARMUP_MS  = 350;
+// max_delay (0.5s) + ani_duration (2.4s) = 2.9s < PULL_MS (3.2s) ✓
+const THUMB_ANI_DUR   = 2.4;  // seconds — long enough to enjoy the journey
+const THUMB_MAX_DELAY = 0.5;
+const THUMB_MIN_PX    = 130;  // photos are now large and clearly visible
+const THUMB_MAX_PX    = 215;
 
 // ── Neutron-star palette ──────────────────────────────────────────────────────
 // Layered gradients give a pseudo-3D sphere appearance:
@@ -74,24 +73,37 @@ const PART_COLORS = [
 // No conflicting opacity: 0 rule — let the animation own opacity entirely.
 const THUMB_CSS = `
   @keyframes flyInToStar {
+    /* Photo starts BIG and stays large for the first ~55% of its journey */
     from {
       transform: translate(var(--ox), var(--oy)) rotate(var(--rot)) scale(1);
-      opacity: 0.9;
+      opacity: 1;
     }
-    75% { opacity: 0.6; }
+    /* Mid-journey: still prominent, starting to pull in */
+    55% {
+      transform: translate(calc(var(--ox) * 0.32), calc(var(--oy) * 0.32))
+                 rotate(calc(var(--rot) * 0.45)) scale(0.75);
+      opacity: 0.92;
+    }
+    /* Getting close: shrinking fast */
+    80% {
+      transform: translate(calc(var(--ox) * 0.06), calc(var(--oy) * 0.06))
+                 rotate(calc(var(--rot) * 0.12)) scale(0.28);
+      opacity: 0.5;
+    }
+    /* At the star: collapsed and gone */
     to {
-      transform: translate(0px, 0px) rotate(0deg) scale(0.05);
+      transform: translate(0px, 0px) rotate(0deg) scale(0.03);
       opacity: 0;
     }
   }
   .star-thumb {
     position: absolute;
     top: 50%; left: 50%;
-    border-radius: 3px;
+    border-radius: 6px;
     overflow: hidden;
-    border: 1px solid rgba(100,180,255,0.5);
-    box-shadow: 0 0 12px rgba(100,180,255,0.3);
-    background: rgba(8,24,55,0.7);
+    border: 1.5px solid rgba(100,180,255,0.65);
+    box-shadow: 0 0 18px rgba(100,180,255,0.45), 0 4px 24px rgba(0,0,0,0.6);
+    background: rgba(8,24,55,0.6);
     will-change: transform, opacity;
     animation: flyInToStar var(--dur) ease-in both;
     animation-delay: var(--delay);
@@ -99,7 +111,7 @@ const THUMB_CSS = `
   .star-thumb img {
     width: 100%; height: 100%;
     object-fit: cover; display: block;
-    filter: brightness(0.8) saturate(0.6);
+    filter: brightness(0.92) saturate(0.8);
   }
 `;
 
@@ -107,14 +119,15 @@ const THUMB_CSS = `
 function rnd(a: number, b: number) { return a + Math.random() * (b - a); }
 
 function edgePx(vw: number, vh: number, size: number) {
-  const mx = vw / 2 + size + 10;
-  const my = vh / 2 + size + 10;
+  // Push origin just past the screen edge so the photo enters from outside
+  const mx = vw / 2 + size / 2 + 20;
+  const my = vh / 2 + size / 2 + 20;
   const side = Math.floor(Math.random() * 4);
   switch (side) {
-    case 0: return { ox: rnd(-mx, mx), oy: -my };
-    case 1: return { ox: rnd(-mx, mx), oy:  my };
-    case 2: return { ox: -mx, oy: rnd(-my * 0.9, my * 0.9) };
-    default: return { ox:  mx, oy: rnd(-my * 0.9, my * 0.9) };
+    case 0: return { ox: rnd(-mx, mx), oy: -my };          // top
+    case 1: return { ox: rnd(-mx, mx), oy:  my };          // bottom
+    case 2: return { ox: -mx, oy: rnd(-my, my) };          // left
+    default: return { ox:  mx, oy: rnd(-my, my) };         // right
   }
 }
 
@@ -186,13 +199,13 @@ function Explosion() {
   const parts = useMemo<PartDef[]>(() =>
     Array.from({ length: N_PARTS }, (_, i) => {
       const angle = (360 / N_PARTS) * i + rnd(-5, 5);
-      const dist  = rnd(80, 360);
+      const dist  = rnd(120, 500);
       const rad   = (angle * Math.PI) / 180;
       return {
         id: i,
         tx: Math.cos(rad) * dist,
         ty: Math.sin(rad) * dist,
-        size: rnd(3, 11),
+        size: rnd(4, 14),
         color: PART_COLORS[Math.floor(Math.random() * PART_COLORS.length)],
         delay: rnd(0, 0.06),
       };
@@ -337,8 +350,10 @@ export default function HighlightsPage() {
             key="stage"
             exit={{ opacity: 0, transition: { duration: 0.55 } }}
             style={{
-              position: 'fixed', inset: 0, zIndex: 50,
-              background: 'radial-gradient(ellipse at center, #04080f 0%, #000 70%)',
+              position: 'fixed', top: 0, left: 0,
+              width: '100vw', height: '100vh',
+              zIndex: 50,
+              background: 'radial-gradient(ellipse at center, #06101f 0%, #000 65%)',
             }}
           >
             {/* Title */}
