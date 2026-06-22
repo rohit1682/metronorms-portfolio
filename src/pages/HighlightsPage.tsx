@@ -31,13 +31,10 @@ interface PartDef {
 const PULL_MS    = 3200;  // longer so big photos are visible across their journey
 const EXP_MS     = 700;
 const N_PARTS    = 20;
-const N_THUMBS   = 14;   // more photos to fill the wider stage
 const WARMUP_MS  = 350;
 // max_delay (0.5s) + ani_duration (2.4s) = 2.9s < PULL_MS (3.2s) ✓
 const THUMB_ANI_DUR   = 2.4;  // seconds — long enough to enjoy the journey
 const THUMB_MAX_DELAY = 0.5;
-const THUMB_MIN_PX    = 130;  // photos are now large and clearly visible
-const THUMB_MAX_PX    = 215;
 
 // ── Neutron-star palette ──────────────────────────────────────────────────────
 // Layered gradients give a pseudo-3D sphere appearance:
@@ -212,7 +209,8 @@ function Explosion() {
     }), []
   );
 
-  const ringScale = Math.round(Math.max(window.innerWidth, window.innerHeight) * 2.2 / 20);
+  const vmax = Math.max(globalThis.innerWidth ?? 1440, globalThis.innerHeight ?? 900);
+  const ringScale = Math.round(vmax * 2.2 / 20);
 
   return (
     <div style={{
@@ -274,11 +272,17 @@ export default function HighlightsPage() {
   const thumbs = useMemo<ThumbDef[]>(() => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    // Responsive sizing: keep photos visible but proportional to viewport
+    const isMobile = vw < 640;
+    const isTablet = vw < 1024;
+    const minPx = isMobile ? 72  : isTablet ? 100 : 130;
+    const maxPx = isMobile ? 120 : isTablet ? 165 : 215;
+    const count = isMobile ? 10  : isTablet ? 12  : 14;
     return [...ALL_PHOTOS]
       .sort(() => Math.random() - 0.5)
-      .slice(0, N_THUMBS)
+      .slice(0, count)
       .map((p, i) => {
-        const size = Math.round(rnd(THUMB_MIN_PX, THUMB_MAX_PX));
+        const size = Math.round(rnd(minPx, maxPx));
         const { ox, oy } = edgePx(vw, vh, size);
         const delay = rnd(0, THUMB_MAX_DELAY);
         return { id: i, src: p.src, ox, oy, rot: rnd(-38, 38), size, delay };

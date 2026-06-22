@@ -1,12 +1,12 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('framer-motion', () => ({
   motion: new Proxy({} as Record<string, unknown>, {
-    get: (_target, tag: string) =>
+    get: (_target, _tag: string) =>
       React.forwardRef(({ children, ...props }: React.ComponentProps<'span'>, ref: React.Ref<HTMLSpanElement>) =>
         React.createElement('span', { ...props, ref }, children),
       ),

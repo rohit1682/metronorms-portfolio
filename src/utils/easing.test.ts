@@ -11,6 +11,6 @@ describe('EASE_SMOOTH', () => {
   });
 
   it('all values are numbers', () => {
-    (EASE_SMOOTH as number[]).forEach((v) => expect(typeof v).toBe('number'));
+    (EASE_SMOOTH as unknown as number[]).forEach((v) => expect(typeof v).toBe('number'));
   });
 });
