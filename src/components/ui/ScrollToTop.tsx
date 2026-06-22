@@ -1,14 +1,30 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/** Floating "back to top" button — appears after 400 px of scroll, fixed bottom-left. */
+/**
+ * Floating "back to top" button.
+ *
+ * Positioning logic:
+ *  - Desktop (≥ 1024 px): sidebar is 64 px wide (collapsed), so the button sits
+ *    just to the right of it — left: calc(64px + 16px) — and higher up so it
+ *    never overlaps the Instagram handle text at the sidebar's bottom.
+ *  - Mobile  (<  1024 px): no permanent sidebar; button sits at bottom-left (20 px).
+ *  - Appears only after the user scrolls 400 px down.
+ */
 export default function ScrollToTop() {
-  const [visible, setVisible] = useState(false);
+  const [visible,  setVisible]  = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 400);
     window.addEventListener('scroll', onScroll, { passive: true });
-    // Set initial state in case page already scrolled on mount
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -33,8 +49,11 @@ export default function ScrollToTop() {
           transition={{ duration: 0.25 }}
           style={{
             position:       'fixed',
-            bottom:         '24px',
-            left:           '20px',
+            // Desktop: clear the 64 px sidebar + a 16 px gap
+            // Mobile:  simple 20 px from left edge
+            left:           isMobile ? '20px' : 'calc(var(--sidebar-collapsed) + 16px)',
+            // Lift the button above the sidebar's bottom Instagram text (~56 px tall)
+            bottom:         isMobile ? '24px' : '88px',
             width:          '44px',
             height:         '44px',
             borderRadius:   '50%',
