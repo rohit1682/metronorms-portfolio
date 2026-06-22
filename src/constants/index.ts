@@ -44,7 +44,7 @@ export const EXPERIENCE = {
     "Over the past two years, Metronorms has solidified our presence in the Kolkata live music scene, transforming from a group of friends into a disciplined, stage-ready act.",
   description: [
     "We have built our reputation by delivering high-impact performances across the city, including sets at Meghnad Saha Institute of Technology, Institute of Post Graduate Medical Education & Research and SSKM Hospital, Asutosh College, Future Institute of Engineering and Management, Techno India University, and Amity University.",
-    "Beyond the college circuit, we have successfully expanded our footprint by playing private shows and securing competitive accolades, most notably finishing as the 2nd runner-up in \"Poila Parbona\" among the top 20 bands in Kolkata.",
+    "Beyond the college circuit, we have successfully expanded our footprint by playing private shows and securing competitive accolades, most notably finishing as the 2nd runner-up in \"Poila Parbon\" among the top 20 bands in Kolkata.",
     "These experiences have allowed us to consistently refine our live sound, ensuring that we bring professional precision to every performance. We take pride in our ability to adapt our high-octane energy to any setting, whether it's a bustling college fest or a social gathering.",
     "As we continue to evolve as a collective, our focus remains on pushing the boundaries of our performance and connecting deeply with our audience.",
     "We are currently active and available for bookings, ready to bring our unique, genre-bending sound and professional energy to your next event.",
@@ -59,7 +59,7 @@ export const EXPERIENCE = {
   ],
   achievements: [
     {
-      title: "2nd Runner-Up — \"Poila Parbona\"",
+      title: "2nd Runner-Up — \"Poila Parbon\"",
       detail: "Finished among the top 20 bands in Kolkata",
     },
     {

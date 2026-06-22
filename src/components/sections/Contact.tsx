@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { RiInstagramLine } from 'react-icons/ri';
 import { CONTACT, BRAND, CLOSING } from '../../constants';
 import { CONTACT_UI } from '../../constants/ui';
 
@@ -399,25 +400,41 @@ export default function Contact() {
             href={`https://instagram.com/${CONTACT.instagram}`}
             target="_blank"
             rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }}
+            whileHover={{
+              scale: 1.05,
+              borderColor: 'rgba(196,30,58,0.55)',
+              color: 'var(--white)',
+            }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '12px',
-              padding: '14px 32px',
+              gap: '10px',
+              padding: 'clamp(11px, 2vw, 14px) clamp(20px, 4vw, 32px)',
               border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: '2px',
+              borderRadius: '4px',
               color: 'var(--white-dim)',
               textDecoration: 'none',
               fontFamily: 'var(--font-body)',
-              fontSize: '0.8rem',
+              fontSize: 'clamp(0.72rem, 2vw, 0.82rem)',
               letterSpacing: '0.15em',
               textTransform: 'uppercase',
               transition: 'all 0.3s ease',
               marginBottom: '48px',
             }}
           >
-            <span style={{ fontSize: '1rem' }}>◆</span>
+            {/* Instagram logo — gradient coloured to match the brand */}
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '5px',
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+              color: '#fff',
+              flexShrink: 0,
+            }}>
+              <RiInstagramLine size={16} />
+            </span>
             @{CONTACT.instagram}
           </motion.a>
 
