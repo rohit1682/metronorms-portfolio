@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { RiInstagramLine } from 'react-icons/ri';
+import logo from '../../assets/logo/logo.jpeg';
 import { CONTACT, BRAND, CLOSING } from '../../constants';
 import { CONTACT_UI } from '../../constants/ui';
 
@@ -422,19 +422,19 @@ export default function Contact() {
               marginBottom: '48px',
             }}
           >
-            {/* Instagram logo — gradient coloured to match the brand */}
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '5px',
-              borderRadius: '8px',
-              background: 'linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
-              color: '#fff',
-              flexShrink: 0,
-            }}>
-              <RiInstagramLine size={16} />
-            </span>
+            {/* Metronorms band logo */}
+            <img
+              src={logo}
+              alt="Metronorms"
+              style={{
+                width:        'clamp(22px, 3vw, 28px)',
+                height:       'clamp(22px, 3vw, 28px)',
+                borderRadius: '50%',
+                objectFit:    'cover',
+                border:       '1px solid rgba(196,30,58,0.5)',
+                flexShrink:   0,
+              }}
+            />
             @{CONTACT.instagram}
           </motion.a>
 
