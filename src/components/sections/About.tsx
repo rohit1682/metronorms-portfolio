@@ -1,18 +1,21 @@
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { EASE_SMOOTH } from '../../utils/easing';
 import { useInView } from 'react-intersection-observer';
 import { ABOUT } from '../../constants';
 import { ABOUT_UI } from '../../constants/ui';
 import { GROUP_PHOTOS } from '../../constants/images';
-import { randomItem } from '../../utils/random';
+import { shuffled } from '../../utils/random';
+import { useCyclingIndex } from '../../hooks/useCyclingIndex';
 
 export default function About() {
   const { ref: sectionRef, inView } = useInView({ threshold: 0.1, triggerOnce: true });
   const { ref: photoRef, inView: photoInView } = useInView({ threshold: 0.2, triggerOnce: true });
 
-  // Fresh random group photo on every page mount
-  const photo = useMemo(() => randomItem(GROUP_PHOTOS) ?? GROUP_PHOTOS[0] ?? '', []);
+  // Shuffled group-photo pool, auto-advancing with a crossfade while on the page
+  const pool = useMemo(() => shuffled(GROUP_PHOTOS), []);
+  const idx = useCyclingIndex(pool.length, 4200);
+  const photo = pool.length ? pool[idx % pool.length] : '';
 
   const containerVariants = {
     hidden: {},
@@ -219,18 +222,27 @@ export default function About() {
                   overflow: 'hidden',
                   aspectRatio: '4/5',
                 }}>
-                  <img
-                    src={photo}
-                    alt="Metronorms band"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center top',
-                      filter: 'brightness(0.85) contrast(1.1)',
-                    }}
-                    loading="lazy"
-                  />
+                  <AnimatePresence mode="sync">
+                    <motion.img
+                      key={photo}
+                      src={photo}
+                      alt="Metronorms band"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 1, ease: 'easeInOut' }}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        objectPosition: 'center top',
+                        filter: 'brightness(0.85) contrast(1.1)',
+                      }}
+                      loading="lazy"
+                    />
+                  </AnimatePresence>
                   {/* Red gradient overlay on photo */}
                   <div style={{
                     position: 'absolute',

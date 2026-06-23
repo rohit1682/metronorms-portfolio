@@ -1,10 +1,11 @@
 import { useRef, useMemo } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { STORY, BRAND } from '../constants';
 import { HERO_BG, GROUP_PHOTOS, MEMBER_PHOTOS } from '../constants/images';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { randomItem, shuffled } from '../utils/random';
+import { shuffled } from '../utils/random';
+import { useCyclingIndex } from '../hooks/useCyclingIndex';
 
 // ── Shared styles (hoisted — not duplicated per section) ─────────────────────
 const STORY_STYLES = `
@@ -33,7 +34,7 @@ const STORY_STYLES = `
 interface Chapter {
   title: string;
   paragraphIndices: number[];
-  photo: string;   // resolved randomly at component mount
+  photos: string[];   // pool resolved at mount; auto-cycles with a crossfade
   imageAlt: string;
   imgSide: 'left' | 'right';
 }
@@ -59,8 +60,9 @@ function ChapterSection({
   });
 
   const isEven = chapter.imgSide === 'left';
-  const photo  = chapter.photo;
-  const hasPhoto = Boolean(photo);
+  const cycleIdx = useCyclingIndex(chapter.photos.length, 5000);
+  const photo = chapter.photos.length ? chapter.photos[cycleIdx % chapter.photos.length] : '';
+  const hasPhoto = chapter.photos.length > 0;
 
   // Mobile: opacity-only (no translate/scale → no layout invalidation on GPU)
   // Desktop: slide-in from the side + subtle scale
@@ -98,18 +100,38 @@ function ChapterSection({
         >
           <div style={{
             position: 'relative', width: '100%', height: '100%',
-            minHeight: isMobile ? '220px' : '340px', overflow: 'hidden',
+            minHeight: isMobile ? '300px' : '340px', overflow: 'hidden',
           }}>
+            {/* Blurred backdrop fills the letterbox space behind the full photo */}
             <img
               src={photo}
-              alt={chapter.imageAlt}
+              alt=""
+              aria-hidden
               style={{
-                width: '100%', height: '100%',
-                objectFit: 'cover', objectPosition: 'center top',
-                filter: 'brightness(0.75) contrast(1.08) saturate(0.9)',
+                position: 'absolute', inset: '-8%',
+                width: '116%', height: '116%',
+                objectFit: 'cover', objectPosition: 'center',
+                filter: 'brightness(0.35) saturate(0.7) blur(28px)',
               }}
-              loading="lazy"
             />
+            <AnimatePresence mode="sync">
+              <motion.img
+                key={photo}
+                src={photo}
+                alt={chapter.imageAlt}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.1, ease: 'easeInOut' }}
+                style={{
+                  position: 'absolute', inset: 0,
+                  width: '100%', height: '100%',
+                  objectFit: 'contain', objectPosition: 'center',
+                  filter: 'brightness(0.92) contrast(1.05) saturate(0.95)',
+                }}
+                loading="lazy"
+              />
+            </AnimatePresence>
             <div style={{
               position: 'absolute', inset: 0,
               background: isEven
@@ -415,21 +437,34 @@ function ClosingSection({ isMobile }: Readonly<{ isMobile: boolean }>) {
 export default function StoryPage() {
   const isMobile = useIsMobile();
 
-  // Random chapter photos — pick without repetition for group shots
+  // Random chapter photo pools — group shots are chunked across the three
+  // group chapters so no photo repeats between chapters, then each chapter
+  // auto-cycles through its own chunk with a crossfade.
   const chapters = useMemo<Chapter[]>(() => {
-    const groupPool = shuffled(GROUP_PHOTOS);  // shuffle so each chapter gets a different shot
-    const manodeepPhotos = MEMBER_PHOTOS['MANODEEP'] ?? [];
-    const featuredPhotos = MEMBER_PHOTOS[STORY.featuredMember] ?? [];
+    const groupPool = shuffled(GROUP_PHOTOS);
+    const manodeepPhotos = shuffled(MEMBER_PHOTOS['MANODEEP'] ?? []);
+    const featuredPhotos = shuffled(MEMBER_PHOTOS[STORY.featuredMember] ?? []);
 
-    const photoByIndex = [
-      '',                                                      // 0 — A Beginning: text-only
-      groupPool[0] ?? '',                                      // 1 — Our Sound
-      groupPool[1] ?? '',                                      // 2 — The Circuit
-      randomItem(manodeepPhotos) ?? groupPool[2] ?? '',        // 3 — Our Philosophy
-      groupPool[3] ?? groupPool[2] ?? '',                      // 4 — The Milestones
-      randomItem(featuredPhotos) ?? groupPool[4] ?? '',        // 5 — Today
+    // Split the shuffled group pool into 3 non-overlapping chunks
+    const third = Math.ceil(groupPool.length / 3) || 1;
+    const groupChunks = [
+      groupPool.slice(0, third),
+      groupPool.slice(third, third * 2),
+      groupPool.slice(third * 2),
+    ].map((c) => (c.length ? c : groupPool));
+
+    const photosByIndex: string[][] = [
+      [],                                                        // 0 — A Beginning: text-only
+      groupChunks[0],                                            // 1 — Our Sound
+      groupChunks[1],                                            // 2 — The Circuit
+      manodeepPhotos.length ? manodeepPhotos : groupChunks[2],   // 3 — Our Philosophy
+      groupChunks[2],                                            // 4 — The Milestones
+      featuredPhotos.length ? featuredPhotos : groupChunks[0],   // 5 — Today
     ];
-    return CHAPTER_META.map((meta, i) => ({ ...meta, photo: photoByIndex[i] ?? '' }));
+    return CHAPTER_META.map((meta, i) => ({
+      ...meta,
+      photos: (photosByIndex[i] ?? []).filter(Boolean),
+    }));
   }, []);
 
   return (

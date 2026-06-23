@@ -1,25 +1,150 @@
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import { MEMBERS } from '../../constants';
 import { MEMBER_PHOTOS } from '../../constants/images';
 import { MEMBERS_UI } from '../../constants/ui';
-import { randomItem } from '../../utils/random';
+import { shuffled } from '../../utils/random';
+import { useCyclingIndex } from '../../hooks/useCyclingIndex';
 
 const MEMBER_COUNT = MEMBERS.list.length; // 7
+
+interface CardMember {
+  name: string;
+}
+
+/**
+ * A single member card. Each card owns its photo rotation with a slightly
+ * different interval (so cards never flip in unison) and flips like a card
+ * toggle whenever its picture changes.
+ */
+function MemberCard({
+  member,
+  pool,
+  index,
+  inView,
+}: Readonly<{ member: CardMember; pool: string[]; index: number; inView: boolean }>) {
+  // Stagger intervals so each card changes at its own cadence, never together.
+  const idx = useCyclingIndex(pool.length, 3400 + index * 620);
+  const photo = pool.length ? pool[idx % pool.length] : '';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28, scale: 0.95 }}
+      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ duration: 0.45, delay: index * 0.06 }}
+    >
+      <Link to={`/members#member-${member.name}`} style={{ textDecoration: 'none', display: 'block' }}>
+        {/* Photo card */}
+        <div
+          className="member-card"
+          style={{
+            position: 'relative',
+            borderRadius: '4px',
+            overflow: 'hidden',
+            aspectRatio: '3/4',
+            border: '1px solid rgba(139,0,0,0.3)',
+            perspective: '900px',
+            transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = 'rgba(196,30,58,0.7)';
+            (e.currentTarget as HTMLElement).style.boxShadow = '0 0 22px rgba(196,30,58,0.28)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = 'rgba(139,0,0,0.3)';
+            (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+          }}
+        >
+          {photo ? (
+            <div className="member-card-inner" style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d' }}>
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={photo}
+                  src={photo}
+                  alt={member.name}
+                  initial={{ rotateY: 90, opacity: 0 }}
+                  animate={{ rotateY: 0, opacity: 1 }}
+                  exit={{ rotateY: -90, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center top',
+                    filter: 'brightness(0.85) contrast(1.08)',
+                    backfaceVisibility: 'hidden',
+                    display: 'block',
+                  }}
+                  loading="lazy"
+                />
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div style={{
+              width: '100%', height: '100%',
+              background: 'linear-gradient(135deg, #1a1a1a, #0a0a0a)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '2.5rem',
+                color: 'rgba(139,0,0,0.5)',
+              }}>
+                {member.name[0]}
+              </span>
+            </div>
+          )}
+
+          {/* Bottom fade */}
+          <div style={{
+            position: 'absolute',
+            bottom: 0, left: 0, right: 0, height: '45%',
+            background: 'linear-gradient(0deg, rgba(10,10,10,0.92) 0%, transparent 100%)',
+          }} />
+
+          {/* Name overlay — visible on the card itself */}
+          <div style={{
+            position: 'absolute',
+            bottom: '10px', left: 0, right: 0,
+            textAlign: 'center',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(0.6rem, 1.2vw, 0.82rem)',
+              letterSpacing: '0.12em',
+              color: 'var(--white)',
+              textTransform: 'uppercase',
+            }}>
+              {member.name}
+            </div>
+            <div style={{
+              fontSize: 'clamp(0.5rem, 0.9vw, 0.62rem)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: 'var(--crimson)',
+              marginTop: '2px',
+            }}>
+              {MEMBERS_UI.roles[member.name] ?? MEMBERS_UI.fallbackRole}
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
 
 export default function MemberStrip() {
   const { ref, inView } = useInView({ threshold: 0.08, triggerOnce: true });
 
-  // Pick a random photo per member on every mount (fresh every navigation + reload)
-  const randomPhotos = useMemo(() =>
+  // Each member gets their own shuffled pool (fresh order every mount).
+  const memberPools = useMemo(() =>
     Object.fromEntries(
-      MEMBERS.list.map(m => {
-        const photos = MEMBER_PHOTOS[m.name] ?? [];
-        return [m.name, randomItem(photos) ?? ''];
-      })
-    ), []
+      MEMBERS.list.map(m => [m.name, shuffled(MEMBER_PHOTOS[m.name] ?? [])])
+    ) as Record<string, string[]>, []
   );
 
   return (
@@ -117,115 +242,30 @@ export default function MemberStrip() {
         grid-template-columns to repeat(7,1fr) for wide screens via a className.
       */}
       <div className="member-strip-grid">
-        {MEMBERS.list.map((member, i) => {
-          const photo = randomPhotos[member.name];
-          return (
-            <motion.div
-              key={member.name}
-              initial={{ opacity: 0, y: 28, scale: 0.95 }}
-              animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-              transition={{ duration: 0.45, delay: i * 0.06 }}
-            >
-              <Link to="/members" style={{ textDecoration: 'none', display: 'block' }}>
-                {/* Photo card */}
-                <div
-                  className="member-card"
-                  style={{
-                    position: 'relative',
-                    borderRadius: '4px',
-                    overflow: 'hidden',
-                    aspectRatio: '3/4',
-                    border: '1px solid rgba(139,0,0,0.3)',
-                    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(196,30,58,0.7)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 0 22px rgba(196,30,58,0.28)';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(139,0,0,0.3)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                  }}
-                >
-                  {photo ? (
-                    <img
-                      src={photo}
-                      alt={member.name}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        objectPosition: 'center top',
-                        filter: 'brightness(0.85) contrast(1.08)',
-                        transition: 'transform 0.5s ease, filter 0.3s ease',
-                        display: 'block',
-                      }}
-                      loading="lazy"
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.transform = 'scale(1.06)';
-                        (e.currentTarget as HTMLElement).style.filter = 'brightness(0.72) contrast(1.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                        (e.currentTarget as HTMLElement).style.filter = 'brightness(0.85) contrast(1.08)';
-                      }}
-                    />
-                  ) : (
-                    <div style={{
-                      width: '100%', height: '100%',
-                      background: 'linear-gradient(135deg, #1a1a1a, #0a0a0a)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <span style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: '2.5rem',
-                        color: 'rgba(139,0,0,0.5)',
-                      }}>
-                        {member.name[0]}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Bottom fade */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 0, left: 0, right: 0, height: '45%',
-                    background: 'linear-gradient(0deg, rgba(10,10,10,0.92) 0%, transparent 100%)',
-                  }} />
-
-                  {/* Name overlay — visible on the card itself */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '10px', left: 0, right: 0,
-                    textAlign: 'center',
-                  }}>
-                    <div style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: 'clamp(0.6rem, 1.2vw, 0.82rem)',
-                      letterSpacing: '0.12em',
-                      color: 'var(--white)',
-                      textTransform: 'uppercase',
-                    }}>
-                      {member.name}
-                    </div>
-                    <div style={{
-                      fontSize: 'clamp(0.5rem, 0.9vw, 0.62rem)',
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      color: 'var(--crimson)',
-                      marginTop: '2px',
-                    }}>
-                      {MEMBERS_UI.roles[member.name] ?? MEMBERS_UI.fallbackRole}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          );
-        })}
+        {MEMBERS.list.map((member, i) => (
+          <MemberCard
+            key={member.name}
+            member={member}
+            pool={memberPools[member.name] ?? []}
+            index={i}
+            inView={inView}
+          />
+        ))}
       </div>
 
       <style>{`
+        /* The flip animation lives on the <img>; hover zoom/dim lives on the
+           wrapper so the two transforms never fight. */
+        .member-card-inner {
+          transition: transform 0.5s ease;
+        }
+        .member-card:hover .member-card-inner {
+          transform: scale(1.06);
+        }
+        .member-card:hover .member-card-inner img {
+          filter: brightness(0.72) contrast(1.1) !important;
+        }
+
         /* Desktop: all ${MEMBER_COUNT} cards in one row, equal width */
         .member-strip-grid {
           display: grid;

@@ -2,10 +2,12 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useLocation } from 'react-router-dom';
 import { MEMBERS, BRAND } from '../constants';
 import { MEMBER_PHOTOS } from '../constants/images';
 import { MEMBERS_UI } from '../constants/ui';
 import { shuffled } from '../utils/random';
+import { useCyclingIndex } from '../hooks/useCyclingIndex';
 
 // ─── Cascade intro ────────────────────────────────────────────────────────────
 
@@ -189,8 +191,12 @@ function MemberRow({
 }) {
   const photos = useMemo(() => shuffled(MEMBER_PHOTOS[member.name] ?? []), [member.name]);
 
-  // Each member has their own photo pool so duplicates across rows are not possible
-  const [activePhoto, setActivePhoto] = useState(0);
+  // Each member has their own photo pool so duplicates across rows are not possible.
+  // Photos auto-advance with a crossfade; picking a thumbnail pauses the rotation.
+  const [manualPhoto, setManualPhoto] = useState<number | null>(null);
+  // Stagger each row's interval so members never flip in unison.
+  const cycled = useCyclingIndex(photos.length, 4000 + index * 700, manualPhoto === null);
+  const activePhoto = manualPhoto ?? cycled;
 
   const [hovered, setHovered] = useState(false);
   const { ref, inView } = useInView({
@@ -203,16 +209,18 @@ function MemberRow({
   const role       = MEMBERS_UI.roles[member.name] ?? MEMBERS_UI.fallbackRole;
 
   const handleThumbClick = (i: number) => {
-    setActivePhoto(i);
+    setManualPhoto(i);
   };
 
   return (
     <motion.div
       ref={ref}
+      id={`member-${member.name}`}
       initial={{ opacity: 0, y: 50 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.55, delay: index * 0.06, ease: [0.4, 0, 0.2, 1] }}
       className={`member-row ${isReversed ? 'member-row--reversed' : ''}`}
+      style={{ scrollMarginTop: 'clamp(60px, 10vw, 100px)' }}
     >
       {/* ── Photo column ── */}
       <div className="member-photo-col">
@@ -223,6 +231,7 @@ function MemberRow({
             position:   'relative',
             borderRadius: '8px',
             overflow:   'hidden',
+            perspective: '1200px',
             boxShadow:  hovered
               ? '0 24px 64px rgba(196,30,58,0.25), 0 4px 20px rgba(0,0,0,0.6)'
               : '0 8px 32px rgba(0,0,0,0.5)',
@@ -238,16 +247,17 @@ function MemberRow({
               src={photos[activePhoto] ?? ''}
               alt={member.displayName}
               loading="eager"
-              initial={{ opacity: 0, scale: 1.04 }}
-              animate={{ opacity: 1, scale: hovered ? 1.05 : 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
+              initial={{ rotateY: 90, opacity: 0 }}
+              animate={{ rotateY: 0, opacity: 1, scale: hovered ? 1.04 : 1 }}
+              exit={{ rotateY: -90, opacity: 0 }}
+              transition={{ duration: 0.45, ease: 'easeInOut' }}
               style={{
                 width:          '100%',
                 aspectRatio:    '3/4',
                 objectFit:      'cover',
                 objectPosition: 'center top',
                 display:        'block',
+                backfaceVisibility: 'hidden',
                 filter:         'brightness(0.9) contrast(1.06)',
               }}
             />
@@ -386,7 +396,22 @@ function MemberRow({
 
 export default function MembersPage() {
   const [introDone, setIntroDone] = useState(false);
+  const { hash } = useLocation();
   const { ref: headRef, inView: headInView } = useInView({ threshold: 0.2, triggerOnce: true });
+
+  // Deep-link: when arriving with #member-<NAME> (e.g. from the home page),
+  // scroll that member's section into view once the cascade intro has finished.
+  useEffect(() => {
+    if (!introDone || !hash) return;
+    const id = hash.slice(1);
+    const target = document.getElementById(id);
+    if (!target) return;
+    const t = setTimeout(
+      () => target.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      150,
+    );
+    return () => clearTimeout(t);
+  }, [introDone, hash]);
 
   // Collect 2-3 photos per member, shuffle the pool, take up to 18
   const cascadePhotos = useMemo(() => {

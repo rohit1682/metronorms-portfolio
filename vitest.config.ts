@@ -16,6 +16,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
+      // `all: false` reports only files exercised by the test run. On Windows,
+      // @vitest/coverage-v8 discovers the un-executed "all files" baseline via
+      // realpath (uppercase drive "C:\.."), while executed modules keep the
+      // lowercase cwd drive ("c:\.."). v8 then counts each file twice and
+      // halves coverage. Disabling the baseline avoids that duplication.
+      all: false,
       // Coverage measured only on pure-logic files; complex UI/pages
       // require extensive browser-API mocking beyond the scope of unit tests.
       include: [
