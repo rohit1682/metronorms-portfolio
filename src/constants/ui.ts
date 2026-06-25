@@ -26,7 +26,7 @@ export const MEMBERS_UI = {
   swipeHint: 'Swipe to explore',
   // Member roles — key must match MEMBERS.list[].name exactly
   roles: {
-    SHESHTHO: 'Vocalist',
+    SHRESHTHO: 'Vocalist',
     JOYORSHI: 'Guitarist',
     KOUSTAV:  'Drummer',
     MANODEEP: 'Vocals & Guitar',
