@@ -102,7 +102,7 @@ export const MEMBERS = {
   heading: "OUR FACES",
   list: [
     {
-      name: "SHRESHTHO",
+      name: "SHRESTHO",
       displayName: "Shrestho Chakraborty",
       bio: "I am Shrestho Chakraborty, the voice behind Metronorms. My journey with music is driven by raw emotion, unapologetic energy, and a relentless passion for rock. Through every lyric and every performance, I aim to create an honest, high-voltage experience that resonates beyond the stage.",
     },
@@ -180,7 +180,7 @@ export const STORY = {
   heading: "Our Story",
   subheading: "Every band has a beginning.",
   // Featured member on the story page — change name to any MEMBERS.list name
-  featuredMember: "SHRESHTHO",
+  featuredMember: "SHRESTHO",
   paragraphs: [
     "Every band has a beginning. Ours started in classrooms, corridors, and casual jam sessions between lectures.",
     "What began as a group of friends sharing a passion for music soon evolved into something much larger. Armed with loud amplifiers, endless curiosity, and a desire to create something unique, six musicians from Kolkata came together to form Metronorms—an experimental rock band built on the belief that music should never be confined by boundaries.",

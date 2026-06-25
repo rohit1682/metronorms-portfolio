@@ -64,7 +64,7 @@ const toUrls = (raw: Record<string, string>): string[] => Object.values(raw);
 export const GROUP_PHOTOS: string[] = toUrls(groupRaw);
 
 export const MEMBER_PHOTOS: Record<string, string[]> = {
-  SHRESHTHO: toUrls(shresthoRaw),
+  SHRESTHO: toUrls(shresthoRaw),
   JOYORSHI: toUrls(joyorshiRaw),
   KOUSTAV: toUrls(koustavRaw),
   MANODEEP: toUrls(manodeepRaw),
@@ -120,7 +120,7 @@ export const ORIGINAL_PHOTO: string = toUrls(ocRaw)[0] ?? '';
 export const GALLERY_CATEGORIES: string[] = [
   'All',
   'Group',
-  'SHRESHTHO',
+  'SHRESTHO',
   'JOYORSHI',
   'KOUSTAV',
   'MANODEEP',
