@@ -10,6 +10,9 @@ import ScrollProgressBar from './components/ui/ScrollProgressBar';
 import BookingCTA from './components/ui/BookingCTA';
 import ScrollToTop from './components/ui/ScrollToTop';
 
+// Background-music feature is temporarily disabled; flip to re-enable.
+const FEATURE_AUDIO_PLAYER = false;
+
 // Pages
 import HomePage from './pages/HomePage';
 import StoryPage from './pages/StoryPage';
@@ -54,7 +57,7 @@ function AppShell() {
         {!splashDone && <LogoSplash onComplete={() => setSplashDone(true)} />}
       </AnimatePresence>
 
-      {splashDone && <AudioPlayer />}
+      {splashDone && FEATURE_AUDIO_PLAYER && <AudioPlayer />}
       {splashDone && <ScrollProgressBar />}
       {splashDone && <BookingCTA />}
       {splashDone && <ScrollToTop />}
